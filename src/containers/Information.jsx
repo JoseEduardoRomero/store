@@ -1,7 +1,33 @@
-import React from 'react';
-import '../styles/components/Information.css';
+import React, { useRef, useContext } from "react";
+import { Link, useHistory } from "react-router-dom";
+import "../styles/components/Information.css";
+import AppContext from "../context/AppContext";
 
 const Information = () => {
+  const { state, addToBuyer } = useContext(AppContext);
+  const form = useRef(null);
+  const history = useHistory()
+  const { cart } = state;
+
+  const handleSubmit = () =>{
+    const formData = new FormData(form.current)//Esto es para capturar informacion con formData
+    //form es el ref que le pusimos al formulario, y current todos los valores que tiene
+    const buyer = {
+      'name': formData.get('name'), //de esta forma se saca el valor, ya que hicimos la instancia y la guardamos en esta variable
+      'email': formData.get('email'),//se obtiene con get y el nombre que le pusimos en el input.
+      'address': formData.get('address'),
+      'apto': formData.get('apto'),
+      'city': formData.get('city'),
+      'country': formData.get('country'),
+      'state': formData.get('state'),
+      'cp': formData.get('cp'),
+      'phone': formData.get('phone'),
+    }
+    addToBuyer(buyer);
+    history.push('/checkout/payment')
+    // console.log(formData)
+  }
+
   return (
     <div className="Information">
       <div className="Information-content">
@@ -9,7 +35,7 @@ const Information = () => {
           <h2>Informacion de contacto:</h2>
         </div>
         <div className="Information-form">
-          <form action="">
+          <form ref={form}>
             <input type="text" placeholder="Nombre completo" name="name" />
             <input type="text" placeholder="Correo Electronico" name="email" />
             <input type="text" placeholder="Direccion" name="address" />
@@ -23,24 +49,26 @@ const Information = () => {
         </div>
         <div className="Information-buttons">
           <div className="Information-back">
-            Regresar
+            <Link to="/checkout">Regresar</Link>
           </div>
           <div className="Information-next">
-            Pagar
+            <button type="button" onClick={handleSubmit}>Pagar</button>
           </div>
         </div>
       </div>
       <div className="Information-sidebar">
         <h3>Pedido:</h3>
-        <div className="Information-item">
-          <div className="Information-element">
-            <h4>ITEM Name</h4>
-            <span>$10</span>
+        {cart.map((item) => (
+          <div className="Information-item" key={item.title}>
+            <div className="Information-element">
+              <h4>{item.title}</h4>
+              <span>${item.price}</span>
+            </div>
           </div>
-        </div>
+        ))}
       </div>
     </div>
   );
-}
+};
 
 export default Information;
